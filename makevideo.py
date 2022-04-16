@@ -3,7 +3,25 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 import sys
 import math
+import argparse
 
+
+parser = argparse.ArgumentParser(description="Process the CSV\nTakes a GoPro GPS CSV made on https://goprotelemetryextractor.com/free/ and makes a speedo video to use in video editing software. Very primitive.")
+parser.add_argument("jsonfile", metavar='F', type=str,help='the input file')
+args = parser.parse_args()
+
+jsonfile = args.jsonfile
+pngspath = "pngs"
+mp4path = "mp4s"
+
+
+
+
+def clearpngs():
+    onlyfiles = [f for f in os.listdir(pngspath) if os.path.isfile(os.path.join(pngspath, f))]
+    for file in onlyfiles:
+        os.remove(pngspath + "/" + file)
+    os.rmdir(pngspath)
 
 def rotate(origin, point, angle):
     """
@@ -20,10 +38,9 @@ def rotate(origin, point, angle):
     qy = int(oy + math.sin(angle) * (px - ox) + math.cos(angle) * (py - oy))
     return qx, qy
 
+if os.path.isdir(pngspath):
+    clearpngs()
 
-jsonfile = sys.argv[1]
-pngspath = "pngs"
-mp4path = "mp4s"
 os.mkdir(pngspath)
 if not os.path.isdir(mp4path):
     os.mkdir(mp4path)
@@ -68,8 +85,9 @@ ffmpeg2command = "ffmpeg -r 5 -i \""+pngspath+"/digitimg%04d.png\" -c:v libx264 
 print (ffmpeg2command)
 os.system(ffmpeg2command)
 
-onlyfiles = [f for f in os.listdir(pngspath) if os.path.isfile(os.path.join(pngspath, f))]
-for file in onlyfiles:
-    os.remove(pngspath + "/" + file)
-os.rmdir(pngspath)
+
+
+clearpngs()
+
+
     
